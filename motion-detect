@@ -1,0 +1,84 @@
+#!/usr/bin/python
+
+import numpy as np
+import cv2
+import argparse
+import time
+__version__ = "0.1"
+
+START = time.time()
+
+
+def read_loop(cap, frame_0, f, threshold, show_video, is_webcam, disp):
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        frame_1 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame_diff1 = cv2.absdiff(frame_1, frame_0)
+        frame_mask = [frame_diff1 > threshold]
+
+        # replace old frame with new frame
+        frame_0 = frame_1
+
+        if show_video:
+            sum_frame = frame.copy()
+            sum_frame[frame_mask] = (0, 255, 128)
+            cv2.imshow('frame', sum_frame)
+
+        # generate data for file/display
+        if is_webcam:
+            milliseconds = (time.time() - START) * 1000.
+        else:
+            milliseconds = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
+        data = "{}\t{}".format(milliseconds,
+                               np.sum(frame_mask))
+        if f is not None:
+            f.write(data + "\n")
+        if disp:
+            print(data)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+    if f is not None:
+        f.close()
+
+
+def main(videoname, save_fname, threshold, show_video, disp):
+    if videoname is None:
+        cap = cv2.VideoCapture(0)
+        is_webcam = True
+    else:
+        cap = cv2.VideoCapture(videoname)
+        is_webcam = False
+
+    # get first frame
+    ret, frame = cap.read()
+    frame_0 = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+
+    if save_fname is None:
+        f = None
+    else:
+        f = open(save_fname, "w")
+
+    read_loop(cap, frame_0, f, threshold, show_video, is_webcam, disp)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Motion Detection Program')
+    parser.add_argument("-f", "--file", help="name of input file, \
+    if empty, uses webcam as input", default=None)
+    parser.add_argument("-o", "--out", help="name of output file, output is two collumns,\
+    first column: time in ms, second column: summed pixel difference",
+                        default=None)
+    parser.add_argument("-t", "--threshold", help="threshold value for pixel differences \
+between frames", type=float, default=10)
+    parser.add_argument("--show-video", help="display video to the screen",
+                        action="store_true",
+                        default=False)
+    parser.add_argument("--disp", help="print motion capture \
+    values to screen",
+                        action="store_true")
+    args = parser.parse_args()
+
+    main(args.file, args.out, args.threshold, args.show_video, args.disp)
