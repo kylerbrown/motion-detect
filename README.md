@@ -19,9 +19,10 @@ In Ubuntu/Debian:
 `python setup.py install`
 
 Alternately, just place the file `motion-detect` in your path, or simply run the script directly, e.g.
+
     git clone https://github.com/kylerbrown/motion-detect.git
-	cd motion-detect
-	./motion-detect
+    cd motion-detect
+    ./motion-detect
 
 
 ## Usage
