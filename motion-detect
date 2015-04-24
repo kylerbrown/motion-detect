@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Written by Kyler Brown (kylerjbrown@gmail.com), 2015
+
 import numpy as np
 import cv2
 import argparse
@@ -52,6 +54,11 @@ def main(videoname, save_fname, threshold, show_video, disp):
     else:
         cap = cv2.VideoCapture(videoname)
         is_webcam = False
+        
+
+    # display video if there is no other output
+    if not save_fname and not disp:
+        show_video = True
 
     # get first frame
     ret, frame = cap.read()
@@ -64,8 +71,14 @@ def main(videoname, save_fname, threshold, show_video, disp):
 
     read_loop(cap, frame_0, f, threshold, show_video, is_webcam, disp)
 
+description="""Motion detection program
+Written by Kyler Brown (kylerjbrown@gmail.com), 2015
+Designed for motion detection of sleeping birds.
+Can be used both on files and "live" using a webcam.
+"""
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Motion Detection Program')
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-f", "--file", help="name of input file, \
     if empty, uses webcam as input", default=None)
     parser.add_argument("-o", "--out", help="name of output file, output is two collumns,\
