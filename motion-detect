@@ -12,6 +12,7 @@ START = time.time()
 
 
 def read_loop(cap, frame_0, f, threshold, show_video, is_webcam, disp):
+    nth_frame = 0
     while(cap.isOpened()):
         ret, frame = cap.read()
         frame_1 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -29,9 +30,11 @@ def read_loop(cap, frame_0, f, threshold, show_video, is_webcam, disp):
         # generate data for file/display
         if is_webcam:
             milliseconds = (time.time() - START) * 1000.
+            nth_frame += 1
         else:
             milliseconds = cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC)
-        data = "{}\t{}".format(milliseconds,
+            nth_frame = cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)
+        data = "{}\t{}\t{}".format(milliseconds, nth_frame,
                                np.sum(frame_mask))
         if f is not None:
             f.write(data + "\n")
@@ -75,6 +78,11 @@ description="""Motion detection program
 Written by Kyler Brown (kylerjbrown@gmail.com), 2015
 Designed for motion detection of sleeping birds.
 Can be used both on files and "live" using a webcam.
+
+Output columns: 
+1. millisecond value of current frame
+2. index of frame
+3. number of pixels with a greater than threshold luminance change
 """
 
 if __name__ == "__main__":

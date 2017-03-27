@@ -27,3 +27,5 @@ Alternately, just place the file `motion-detect` in your path, or simply run the
 
 ## Usage
 For usage help, type `motion-detect -h`
+
+![Example Image](example.png)
